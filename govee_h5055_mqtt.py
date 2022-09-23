@@ -40,7 +40,7 @@ client = mqtt.Client()
 ######  mqtt-user and mqtt-password for Home Assistant #####
 client.username_pw_set('mqtt-user','mqtt-password')
 
-mqtt_prefix = "/home-assistant/govee"
+mqtt_prefix = "home-assistant/govee"
 mqtt_gateway_name = "/Mosquitto/"
 
 debug = []
