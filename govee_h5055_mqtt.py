@@ -41,7 +41,7 @@ client = mqtt.Client()
 client.username_pw_set('mqtt-user','mqtt-password')
 
 mqtt_prefix = "home-assistant/govee"
-mqtt_gateway_name = "/Mosquitto/"
+mqtt_gateway_name = "/mosquitto/"
 
 debug = []
 received_channels = []
@@ -80,11 +80,20 @@ class ScanDelegate(DefaultDelegate):
                 sensor_a_meas = int(adv_manuf_data[16:18] + adv_manuf_data[14:16], 16)
                 sensor_a_low = int(adv_manuf_data[20:22] + adv_manuf_data[18:20], 16)
                 sensor_a_high = int(adv_manuf_data[24:26] + adv_manuf_data[22:24], 16)
+                #convert readings to fahrenheit 
+                sensor_a_meas_f = round((((float(sensor_a_meas))*1.8)+32),2)
+                sensor_a_low_f = round((((float(sensor_a_low))*1.8)+32),2)                
+                sensor_a_high_f = round((((float(sensor_a_high))*1.8)+32),2)
+                                
                 #read channel b measured value, low byte, high byte switched
                 sensor_b_meas = int(adv_manuf_data[30:32] + adv_manuf_data[28:30], 16)
                 sensor_b_low = int(adv_manuf_data[34:36] + adv_manuf_data[32:34], 16)
                 sensor_b_high = int(adv_manuf_data[38:40] + adv_manuf_data[36:38], 16)
-                
+                #convert readings to fahrenheit
+                sensor_b_meas_f = round((((float(sensor_b_meas))*1.8)+32),2)
+                sensor_b_low_f = round((((float(sensor_b_low))*1.8)+32),2)                
+                sensor_b_high_f = round((((float(sensor_b_high))*1.8)+32),2)
+                                
                 #Read Battery charge
                 bat_hex = adv_manuf_data[8:10]
                 bat_int = int(bat_hex,16)
@@ -115,6 +124,7 @@ class ScanDelegate(DefaultDelegate):
 
 
                 mac=dev.addr
+                mac=mac.replace(":", "")
                 signal = dev.rssi
                 mqtt_topic = mqtt_prefix + mqtt_gateway_name + mac + "/"
                 #client.publish(mqtt_topic+"alarm", alarm, qos=0)
@@ -126,18 +136,18 @@ class ScanDelegate(DefaultDelegate):
                         mqtt_topic = mqtt_prefix + mqtt_gateway_name + mac + "/Channel_" + str(channel) + "/"
     
                         #client.publish(mqtt_topic+"rssi", signal, qos=0)
-                        client.publish(mqtt_topic+"temp", sensor_a_meas, qos=0)
-                        client.publish(mqtt_topic+"low", sensor_a_low, qos=0)
-                        client.publish(mqtt_topic+"high", sensor_a_high, qos=0)
+                        client.publish(mqtt_topic+"temp", sensor_a_meas_f, qos=0)
+                        client.publish(mqtt_topic+"low", sensor_a_low_f, qos=0)
+                        client.publish(mqtt_topic+"high", sensor_a_high_f, qos=0)
                     
                     if ch_b_connected:
                         #client.publish(mqtt_topic+"battery_pct", battery_percent, qos=0)
                         mqtt_topic = mqtt_prefix + mqtt_gateway_name + mac + "/Channel_" + str(channel + 1) + "/"
             
                         #client.publish(mqtt_topic+"rssi", signal, qos=0)
-                        client.publish(mqtt_topic+"temp", sensor_b_meas, qos=0)
-                        client.publish(mqtt_topic+"low", sensor_b_low, qos=0)
-                        client.publish(mqtt_topic+"high", sensor_b_high, qos=0)
+                        client.publish(mqtt_topic+"temp", sensor_b_meas_f, qos=0)
+                        client.publish(mqtt_topic+"low", sensor_b_low_f, qos=0)
+                        client.publish(mqtt_topic+"high", sensor_b_high_f, qos=0)
                 
                 
             sys.stdout.flush()
@@ -150,5 +160,9 @@ client.connect("localhost",1883,60)
 client.on_connect = on_connect
 client.on_message = on_message
 
-#while True:
-scanner.scan(10.0, passive=True)
+#Continously look for data every 10 secs
+i = 1
+while i > 0:
+  #print("scan number " +str(i))
+  scanner.scan(10.0, passive=True)
+  received_channels = []
