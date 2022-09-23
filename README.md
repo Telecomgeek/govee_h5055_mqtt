@@ -14,20 +14,26 @@ Thanks to Eric!
 
 It took me some time to decode the bits and bytes of the govee communication but now it is working.
 
+This fork is from https://github.com/BastiJoe/govee_h5055_mqtt   AWESOME WORK!!!   Thank you for saving me a ton of time.
+
+My fork is different in that the code publishes in Fahrenheit and runs a continous ten second loop.  It will publish data to your mqtt broker
+every ten seconds.
+
 Install instuctions
 
 cd ~
 
-git clone https://github.com/BastiJoe/govee_h5055_mqtt
+git clone https://github.com/Telecomgeek/govee_h5055_mqtt
 
 cd ~/govee_h5055_mqtt/
 
 sudo python3 govee_h5055_mqtt.py
 
-I am using it with crontab
+I am using it with crontab to ensure the code is still running.  It uses pgrep to see if there is a process running that contains
+"govee_h5055_mqtt.py" if not then restart it with "nohup python3 /home/you/govee_h5055_mqtt/govee_h5055_mqtt.py > test.out"
 
 sudo crontab -e
 
-add this line to run script every minute:
+add this line to verify script is running and if not restart it every minute:
 
-*/1 * * * * python3 /home/pi/govee_h5055_mqtt/govee_h5055_mqtt.py
+*/1 * * * * pgrep -f govee_h5055_mqtt.py || nohup python3 /home/you/govee_h5055_mqtt/govee_h5055_mqtt.py > test.out
