@@ -37,7 +37,10 @@ def on_message(client, userdata, msg):
     print("on message")
     
 client = mqtt.Client()
-mqtt_prefix = "/sensor/govee"
+######  mqtt-user and mqtt-password for Home Assistant #####
+client.username_pw_set('mqtt-user','mqtt-password')
+
+mqtt_prefix = "/home-assistant/govee"
 mqtt_gateway_name = "/Mosquitto/"
 
 debug = []
@@ -149,4 +152,3 @@ client.on_message = on_message
 
 #while True:
 scanner.scan(10.0, passive=True)
-
